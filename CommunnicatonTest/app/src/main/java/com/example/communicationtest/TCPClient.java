@@ -10,18 +10,22 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class TCPClient implements Runnable {
-    String ip = "https://se2-isys.aau.at:53212/";
+    String ip = "143.205.174.165";
     String messages;
     int port = 53212;
     Socket clientSocket;
     DataOutputStream outToServer;
     BufferedReader inFromServer;
-    private TextView outputText;
+    private final TextView outputText;
 
-    public void connect(TextView output){
+    public TCPClient(TextView outputText, String message){
+        this.outputText = outputText;
+        this.messages = message;
+    }
+
+    private void connect(){
 
         try {
-            outputText = output;
             clientSocket = new Socket(ip,port);
             outToServer = new DataOutputStream(clientSocket.getOutputStream());
             inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -33,20 +37,24 @@ public class TCPClient implements Runnable {
         }
     }
 
-    public void send(String message) throws IOException {
-        outToServer.writeBytes(message+'\n');
+    private void send() throws IOException {
+        outToServer.writeBytes(this.messages+'\n');
     }
 
-    public void close(String output) throws IOException {
-        outputText.setText(output);
+    private void close(String output) throws IOException {
+        this.outputText.setText(output);
         clientSocket.close();
     }
 
     @Override
     public void run() {
+        connect();
         try {
-            messages = inFromServer.readLine();
-            Log.d("serverO", messages);
+            send();
+            Log.d("serverFi", "-------------connected----------------"+this.messages);
+
+            this.messages = inFromServer.readLine();
+            Log.d("serverO","-------------------connected------------------" +this.messages);
             close(messages);
         } catch (IOException e) {
             e.printStackTrace();

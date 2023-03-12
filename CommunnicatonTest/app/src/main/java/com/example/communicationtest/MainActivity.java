@@ -28,16 +28,17 @@ public class MainActivity extends AppCompatActivity {
             SortArray sort = new SortArray();
             String orderedMar = sort.sortArray(Integer.parseInt(inputText.getText().toString()));
             Log.d("serverI", "-------------cklicked----------------"+orderedMar);
-            TCPClient task = new TCPClient();
-            outputText.setText(orderedMar);
-            task.connect(outputText);
+            TCPClient task = new TCPClient(outputText,inputText.getText().toString());
+            Thread thread = new Thread(task);
+            thread.start();
+
             try {
-                task.send(inputText.getText().toString());
-                Log.d("serverT", "-------------textet----------------");
-            } catch (IOException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            task.run();
         });
+
+
     }
 }
